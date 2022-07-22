@@ -1,6 +1,6 @@
 import pytest
 import datetime as dt
-import task as task
+import app.task as task
 
 @pytest.fixture
 def mock_lst():
@@ -22,6 +22,9 @@ def app(mock_lst):
     # clear and setup testing data in database
     task.Task.delete().execute()
     task.Task.insert_many(task.tasks_schema.load(mock_lst)).execute()
+
+    task.logger.debug(mock_lst)
+
     yield app
 
 @pytest.fixture()
@@ -58,7 +61,7 @@ def test_get_tasks_expiring(client):
     res = client.get('/tasks/2')    # expiring in 2 days
     lst = res.json
     assert lst is not None
-    assert len(lst) == 2
+    assert len(lst) == 1
 
 # PUT /task/1/toggle
 def test_put_task_toggle(client):

@@ -4,7 +4,7 @@ from marshmallow import (
     fields,
     validates,
 )
-from .models import (
+from app.models import (
     Task,
 )
 

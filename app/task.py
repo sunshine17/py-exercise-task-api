@@ -1,31 +1,25 @@
 import datetime as dt
 from flask_restful import abort, Api, Resource 
 from flask import Flask, request
-
-from marshmallow import (
-    ValidationError,
-)
+from marshmallow import ( ValidationError,)
 
 import logging
- 
-# Create and configure logger
 logging.basicConfig(filename="/tmp/task-app.log",
 	format='%(asctime)s`%(name)s`%(levelname)s`%(message)s',
 	filemode='w',
 	level=logging.DEBUG
 )
 
-from .models import (
+from app.models import (
     create_tables,
     Task
 )
-from .schemas import (
+from app.schemas import (
     DUE_DATE_FMT,
     task_schema,
     tasks_schema,
     task_to_model,
 )
-
  
 logger = logging.getLogger('__main__')
 logger.setLevel(logging.DEBUG)
@@ -33,8 +27,6 @@ logger.setLevel(logging.DEBUG)
 app = Flask(__name__)
 api = Api(app)
 
-
-#### API #####
 
 class TaskAPI(Resource):
 
@@ -77,9 +69,6 @@ class TaskAPI(Resource):
                     task.due_date = i_due_date
                 else:
                     task.due_date = dt.datetime.strptime(i_due_date, DUE_DATE_FMT)
-
-#                task.due_date = input_dic['due_date']
-#                task.due_date = dt.datetime.strptime(input_dic['due_date'], DUE_DATE_FMT)
         except ValidationError as err:
             abort(400, message="input error")
 

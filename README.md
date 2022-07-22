@@ -12,11 +12,11 @@ start-task.sh
 
 docker build -t task-api .
 
-## Run the container in port 5000
+## Run the container in port 5100
 
 ```shell
 docker run --name task-api \
-    -d -p 5000:5000 \
+    -d -p 5100:5100 \
     task-api 
 ```
 
@@ -24,7 +24,7 @@ docker run --name task-api \
 
 ## Get tasks
 
-curl http://localhost:5000/tasks/
+curl http://localhost:5100/tasks/
 
 ## Helper shell script for testing
 
@@ -57,5 +57,5 @@ Here we use pytest for unit testing framework.
 ```shell
 pipenv install
 pipenv shell
-pytest -v -l task-api
+pytest -v -l app
 ```
