@@ -1,13 +1,8 @@
 import datetime as dt
-from functools import wraps
 from flask_restful import abort, Api, Resource 
+from flask import Flask, request
 
-from flask import Flask, request, g, jsonify
-import peewee as pw
 from marshmallow import (
-    Schema,
-    fields,
-    validates,
     ValidationError,
 )
 
@@ -19,86 +14,31 @@ logging.basicConfig(filename="/tmp/task-app.log",
 	filemode='w',
 	level=logging.DEBUG
 )
+
+from .models import (
+    create_tables,
+    Task
+)
+from .schemas import (
+    DUE_DATE_FMT,
+    task_schema,
+    tasks_schema,
+    task_to_model,
+)
+
  
 logger = logging.getLogger('__main__')
 logger.setLevel(logging.DEBUG)
 
 app = Flask(__name__)
 api = Api(app)
-db = pw.SqliteDatabase("/tmp/task.db")
-
-###### MODELS #####
-
-class BaseModel(pw.Model):
-    """Base model class. All descendants share the same database."""
-
-    class Meta:
-        database = db
-
-
-class Task(BaseModel):
-    title = pw.TextField()
-    due_date = pw.DateTimeField()
-    is_done = pw.BooleanField(default=False)
-
-    class Meta:
-        order_by = ("-due_date",)
-
-
-def create_tables():
-    if db.is_closed:
-        db.connect()
-    Task.create_table()
-
-
-Task.create_table()
-
-##### SCHEMAS #####
-
-
-DUE_DATE_FMT = "%d/%m/%Y"
-
-
-class TaskSchema(Schema):
-    id = fields.Int(dump_only=True)
-    title = fields.Str(required=True)
-    due_date = fields.DateTime(required=True)
-    is_done = fields.Boolean(dump_default=False)
-
-    @validates("due_date")
-    def validate_date(self, val):
-        if type(val) is dt.datetime:
-            return True
-        try:
-            dt.datetime.strptime(val, DUE_DATE_FMT)
-            return True
-        except ValueError:
-            return False
-
-def task_to_model(dic):
-    if not dic:
-        return None
-
-    logger.debug("TASK_TO_MODEL`typeof due_date={}".format(type(dic['due_date'])))
-    ret = Task(
-        title=dic['title'],
-        due_date=dic['due_date'],
-#        is_done=dic['is_done'],
-    )
-    if 'is_done' in dic:
-        ret.is_done = dic['is_done']
-    return ret
-
-
-task_schema = TaskSchema()
-tasks_schema = TaskSchema(many=True)
 
 
 #### API #####
 
 class TaskAPI(Resource):
 
-    def get(self, id):
+    def get(self, id=0):
         try:
             task = Task.get(Task.id == id)
         except Task.DoesNotExist:
@@ -108,7 +48,7 @@ class TaskAPI(Resource):
         logger.debug(task.due_date)
         logger.debug(task.title)
         logger.debug(task.id)
-        return task_schema.dump(task)
+        return task_schema.dumps(task)
 
     def delete(self, id):
         q = Task.delete().where(Task.id == id)
@@ -209,4 +149,4 @@ api.add_resource(TaskToggleAPI,
 
 if __name__ == "__main__":
     create_tables()
-    app.run(port=5000, debug=True)
+    app.run(port=5100, debug=True)

@@ -7,10 +7,10 @@ task -- Shell script used to interact with the task server
 USAGE: task [add|list|done|update|delete] ["task title"] [due_date] [--expiring-today] [task_id_for_done]
 
 EXAMPLES: 
-./task add "task title x" 21/08/2019
-./task list
-./task list --expiring-today
-./task done 3
+./tasks add "task title x" 08/11/2022
+./tasks list
+./tasks list --expiring-today
+./tasks done 3
 
 HELP
     exit 0
@@ -30,6 +30,9 @@ case $1 in
         [ $# -ne 3 ] && usage
         TITLE=$2
         DUE_DATE=`date --date ${3} --iso-8601=seconds`
+        echo "==="
+        echo $DUE_DATE
+        echo "==="
         if [[ $? -ne 0 ]];then
             print_out "INVALID DATE."
             exit 1
@@ -38,18 +41,18 @@ case $1 in
         curl -X POST -H "Content-Type: application/json" -d '{
             "title": "'"$TITLE"'",
             "due_date": "'"$DUE_DATE"'"
-        }' http://localhost:5000/task -v
+        }' http://localhost:5100/task -v
         exit 0
       ;;
     list)
         if [[ $# -eq 1 ]]; then
-            curl -X GET http://localhost:5000/tasks
+            curl -X GET http://localhost:5100/tasks
             exit 0
         elif [[ $# -eq 2 ]]; then
             if [[ $3 -eq "--expiring-today" ]];then
-                curl http://localhost:5000/tasks/0 -v
+                curl http://localhost:5100/tasks/0 -v
             else
-                curl http://localhost:5000/tasks/$2 -v
+                curl http://localhost:5100/tasks/$2 -v
             fi
             exit 0
         fi
@@ -59,7 +62,7 @@ case $1 in
             echo "need task id to toggle done."
             exit 1
         else
-            curl -X PUT http://localhost:5000/task/$2/toggle -v
+            curl -X PUT http://localhost:5100/task/$2/toggle -v
         fi
       ;;
     *)
