@@ -57,5 +57,5 @@ Here we use pytest for unit testing framework.
 ```shell
 pipenv install
 pipenv shell
-pytest -v -l app
+pytest -v -l test
 ```
