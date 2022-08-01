@@ -31,6 +31,8 @@ api = Api(app)
 class TaskAPI(Resource):
 
     def get(self, id=0):
+        if id is 0:
+            abort(400, message="need task id")
         try:
             task = Task.get(Task.id == id)
         except Task.DoesNotExist:
@@ -43,12 +45,17 @@ class TaskAPI(Resource):
         return task_schema.dumps(task)
 
     def delete(self, id):
+        if id is 0:
+            abort(400, message="need task id")
         q = Task.delete().where(Task.id == id)
         rows = q.execute()
         logger.info("TASK DELETED`id={id}`affected_rows={cnt}".format(id=id, cnt=rows))
         return 200
 
-    def put(self, id):
+    def put(self, id=0):
+        if id is 0:
+            abort(400, message="need task id")
+
         try:
             task = Task.get(Task.id == id)
         except Task.DoesNotExist:
@@ -91,20 +98,17 @@ class TaskListAPI(Resource):
         if exp_days:
             return self._get_in_exp_days(exp_days)
 
+        # Get all tasks
         tasks = Task.select().order_by(Task.due_date.asc())
-
-        logger.debug('======================== TASKS IN GET ')
-        logger.debug(list(tasks))
-        for i in list(tasks):
-            logger.debug("TASK_ID={id}`DUE_DATE={due_date}".format(
-                id=i.id, due_date=i.due_date))
-
         return tasks_schema.dump(list(tasks))
 
     def _get_in_exp_days(self, exp_days):
         tasks = Task.select().where(
-                Task.due_date <= (dt.datetime.now() + dt.timedelta(days=exp_days))
-                )
+            (Task.is_done == False)
+            &
+            Task.due_date.between(dt.datetime.now(),(dt.datetime.now() + dt.timedelta(days=exp_days)))
+            # Task.due_date <= (dt.datetime.now() + dt.timedelta(days=exp_days))
+        )
         return tasks_schema.dump(list(tasks))
 
 
@@ -124,7 +128,7 @@ class TaskToggleAPI(Resource):
 
 api.add_resource(TaskListAPI, 
     '/tasks', 
-    '/tasks/<int:exp_days>'
+    '/tasks/expire-in-days/<int:exp_days>'
 )
 
 api.add_resource(TaskAPI, 

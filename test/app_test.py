@@ -58,7 +58,7 @@ def test_get_tasks(client):
     
 # GET /tasks/2
 def test_get_tasks_expiring(client):
-    res = client.get('/tasks/2')    # expiring in 2 days
+    res = client.get('/tasks/expire-in-days/2')    # expiring in 2 days
     lst = res.json
     assert lst is not None
     assert len(lst) == 1

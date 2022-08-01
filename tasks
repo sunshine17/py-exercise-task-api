@@ -50,9 +50,9 @@ case $1 in
             exit 0
         elif [[ $# -eq 2 ]]; then
             if [[ $3 -eq "--expiring-today" ]];then
-                curl http://localhost:5100/tasks/0 -v
+                curl http://localhost:5100/tasks/expire-in-days/0 -v
             else
-                curl http://localhost:5100/tasks/$2 -v
+                curl http://localhost:5100/tasks/expire-in-days/$2 -v
             fi
             exit 0
         fi

@@ -12,11 +12,5 @@ curl -X POST -H "Content-Type: application/json" -d '{
 }' http://localhost:5100/task 
 
 
-#echo "=== 3. PUT \n"
-#curl -X PUT -H "Content-Type: application/json" -d '{
-#    "title": "task-1",
-#    "due_date": "'"$DUE_DATE_NOW"'"
-#}' http://localhost:5100/task/1
-
-#echo "=== 4. POST toggle \n"
-#curl -X POST -H "Content-Type: application/json" -d '{}' http://localhost:5100/task/1/toggle 
+echo "=== 3. PUT toggle \n"
+curl -X PUT http://localhost:5100/task/1/toggle 
