@@ -1,3 +1,2 @@
 pipenv install
-pipenv shell
-pytest -v -l test
+pipenv run pytest -v -l test

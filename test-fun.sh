@@ -1,4 +1,7 @@
-DUE_DATE_NOW="$(date --iso-8601=seconds)"
+#!/bin/sh
+DUE_DATE_NOW="$(date +%Y-%m-%dT%H:%M:%S%z)"
+
+#DUE_DATE_NOW="$(date --iso-8601=seconds)"  # This won't work in Unix
 #DUE_DATE_NOW="$(date)"
 #DUE_DATE_NOW="05/06/2019 14:33:01"
 

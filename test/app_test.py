@@ -1,6 +1,17 @@
 import pytest
 import datetime as dt
 import app.task as task
+from app.models import (
+    Task
+)
+from app.schemas import (
+    task_schema,
+    tasks_schema,
+)
+
+import logging
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 @pytest.fixture
 def mock_lst():
@@ -17,13 +28,12 @@ def app(mock_lst):
         "TESTING": True,
     })
 #    task.start()
-
 #    task.create_tables()
     # clear and setup testing data in database
-    task.Task.delete().execute()
-    task.Task.insert_many(task.tasks_schema.load(mock_lst)).execute()
+    Task.delete().execute()
+    Task.insert_many(tasks_schema.load(mock_lst)).execute()
 
-    task.logger.debug(mock_lst)
+    logger.debug(mock_lst)
 
     yield app
 
@@ -44,9 +54,9 @@ def test_put_task(client):
     res = client.put('/task/1', json=input_json)
     assert res.status_code == 204
     
-    updated = task.Task.get(task.Task.id == 1)
+    updated = Task.get(Task.id == 1)
     assert updated is not None
-    assert task.task_schema.dump(updated)['title'] == updated_title
+    assert task_schema.dump(updated)['title'] == updated_title
 
     
 # GET /tasks
@@ -68,11 +78,11 @@ def test_put_task_toggle(client):
     res = client.put('/task/1/toggle', json={})
     assert res.status_code == 200
 
-    updated = task.Task.get(task.Task.id == 1)
+    updated = Task.get(Task.id == 1)
 
     assert updated is not None
-    dic = task.task_schema.dump(updated)
-    task.logger.debug(dic)
+    dic = task_schema.dump(updated)
+    logger.debug(dic)
     assert dic['is_done'] == True
     
 
