@@ -20,7 +20,7 @@ logger.setLevel(logging.DEBUG)
 class TaskAPI(Resource):
 
     def get(self, id=0):
-        if id is 0:
+        if id == 0:
             abort(400, message="need task id")
         try:
             task = Task.get(Task.id == id)
@@ -30,7 +30,7 @@ class TaskAPI(Resource):
         return task_schema.dumps(task)
 
     def delete(self, id):
-        if id is 0:
+        if id == 0:
             abort(400, message="need task id")
         q = Task.delete().where(Task.id == id)
         rows = q.execute()
@@ -38,7 +38,7 @@ class TaskAPI(Resource):
         return 200
 
     def put(self, id=0):
-        if id is 0:
+        if id == 0:
             abort(400, message="need task id")
 
         try:
